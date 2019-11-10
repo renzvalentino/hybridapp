@@ -18,8 +18,8 @@
               <q-item-label caption>{{ music.artist }}</q-item-label>
             </q-item-section>
             <q-item-section>
-              <q-btn color="primary" icon="edit" @click="editMusic(music, index)"/>
-              <q-btn color="red" icon="delete" @click="deleteMusic(index)"/>
+              <q-btn color="primary" icon="edit" @click="editMusic(music, music.id)"/>
+              <q-btn color="red" icon="delete" @click="deleteMusic(music.id)"/>
             </q-item-section>
           </q-item>         
         </q-list>
@@ -31,6 +31,9 @@
 <script>
 export default {
   name: 'PageIndex',
+  created () {
+    this.$bind("musicList", this.$db.collection("musicList"))
+  },
   methods: {
     // showSongAndArtist () {
     //   return computed() != " by " ? computed() : "";
@@ -40,18 +43,24 @@ export default {
     },
     addMusic () {
       // use this kapag nasa loob ng script
-      this.musicList.push({
+      // this.musicList.push({
+      //   songTitle: this.songTitle,
+      //   artist: this.artist
+      // })
+      this.$db.collection('musicList').add({
         songTitle: this.songTitle,
         artist: this.artist
       })
       this.artist=""
       this.songTitle=""
-      this.$router.push('/login')
+      // this.$router.push('/login')
     },
     deleteMusic (i) {
-      this.musicList.splice(i, 1)
-      console.log(i)
-      console.log(this.musicList)
+      // this.musicList.splice(i, 1)
+      // console.log(i)
+      // console.log(this.musicList)
+      // add to firestore
+      this.$db.collection('musicList').doc(i).delete()
     }, 
     editMusic (d, i) {
       this.artist = d.artist
@@ -66,15 +75,24 @@ export default {
       this.index=null
     },
     updateMusic () {
-      this.musicList[this.index] = {artist: this.artist, songTitle: this.songTitle}
+      // this.musicList[this.index] = {artist: this.artist, songTitle: this.songTitle}
+      // update firebase record
+      this.$db.collection('musicList')
+        .doc(this.index)
+        .set({
+          artist: this.artist, 
+          songTitle: this.songTitle
+        }
+      )
       this.cancelEdit()
     }
+    
   },
   data () {
     return {
       musicList: [
-        { songTitle: "Manok na Pula", artist: "Vic Desucatan"},
-        { songTitle: "Wind of Change", artist: "Scorpion"}
+        // { songTitle: "Manok na Pula", artist: "Vic Desucatan"},
+        // { songTitle: "Wind of Change", artist: "Scorpion"}
       ],
       artist: "",
       songTitle: "",
